@@ -1,2 +1,2 @@
 # OrbitalMechanics AENG 4150
-# Professor: Dr. John George
+Professor: Dr. John George
