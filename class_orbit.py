@@ -1,25 +1,27 @@
 import numpy as np
-### Double check which units angles use, need to convert calculations to degrees
+import central_bodies
+### Add a plot method
+### method to find r and v? given nu?
 
 class orbit:
-    def __init__(self, mu):
-        self.mu = mu
+    def __init__(self, cb = central_bodies.earth_DU):
         self.r0 = np.empty(3)
         self.v0 = np.empty(3)
         self.energy = np.empty(1)
         self.h = np.empty(3)
         self.e = np.empty(3)
+        self.cb = cb
 
     def init_cond(self, r, v):
         self.r0 = r
         self.v0 = v
-        self.energy = np.linalg.norm(self.v0)**2/2 - self.mu/np.linalg.norm(self.r0)
+        self.energy = np.linalg.norm(self.v0)**2/2 - self.cb['mu']/np.linalg.norm(self.r0)
         self.h = np.cross(self.r0, self.v0)
-        self.e = np.cross(self.v0, self.h)/self.mu - self.r0/np.linalg.norm(self.r0)
+        self.e = np.cross(self.v0, self.h)/self.cb['mu'] - self.r0/np.linalg.norm(self.r0)
         self.n = np.array([-h[2], h[1], 0])
 
     def calc_a(self):
-        a = -self.mu/(2*self.energy)
+        a = -self.cb['mu']/(2*self.energy)
         return a
 
     def calc_e(self):
@@ -44,7 +46,7 @@ class orbit:
         return long_AN
 
     def calc_time_period(self):
-        tp = 2*np.pi/np.sqrt(self.mu) * (self.mu/(2*self.energy))**(3/2)
+        tp = 2*np.pi/np.sqrt(self.cb['mu']) * (self.cb['mu']/(2*self.energy))**(3/2)
         return tp
 
     ### Add funtionality such that if no new radius or vector is provided, the initial radius and vector are used.
@@ -71,8 +73,8 @@ class orbit:
         return u
 
     def calc_true_long_epoch(self):
-        lambda = np.arccos(self.r0[1] / self.r0)
-        lambda = lambda * 360 / (2*np.pi)
+        true_long_epoch = np.arccos(self.r0[1] / self.r0)
+        true_long_epoch = true_long_epoch * 360 / (2*np.pi)
         if self.r0[2] < 0:
-            lambda = 360 - lambda
-        return lambda 
+            true_long_epoch = 360 - true_long_epoch
+        return true_long_epoch
