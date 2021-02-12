@@ -4,7 +4,7 @@ from class_orbit import orbit
 import central_bodies
 
 
-### Enter initial radius and velocity
+### Enter initial radius and velocity. Replace the dash with a negative sign
 rx = float(input('Enter rx value: ').replace('\U00002013', '-'))
 ry = float(input('Enter ry value: ').replace('\U00002013', '-'))
 rz = float(input('Enter rz value: ').replace('\U00002013', '-'))
@@ -25,6 +25,6 @@ DUTU = 7.905368
 
 ### Choose a central body and units: sun_AU, sun_metric, earth_DU, earth_metric
 
-satellite = orbit(r0/DU, v0/DUTU, central_bodies.earth_DU)
+satellite = orbit(r0, v0, central_bodies.earth_DU)
 
 satellite.rv2elem()
