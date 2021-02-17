@@ -1,3 +1,10 @@
+"""
+John Kloser
+AENG 4150 Orbital Mechanics
+OrbitalMechanics.py
+Project 1
+"""
+
 from math import *
 import numpy as np
 from class_orbit import orbit

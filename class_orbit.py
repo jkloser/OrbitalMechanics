@@ -1,3 +1,10 @@
+"""
+John Kloser
+AENG 4150 Orbital Mechanics
+class_orbit.py
+Project 1
+"""
+
 import numpy as np
 import central_bodies
 import matplotlib as plt
@@ -33,7 +40,7 @@ class orbit:
 
         # Calculate argument of periapse
         # (angle between the line of nodes and eccentricity vector)
-        if i == 0 or e_mag == 0: arg_periapse = None
+        if i == 0 or e_mag == 0: arg_periapse = float('NaN')
         else:
             arg_periapse = np.arccos(np.dot(n, e) / (np.linalg.norm(n)*e_mag))
             if e[2] < 0: arg_periapse = (2*np.pi) - arg_periapse    # quadrant check
@@ -41,34 +48,33 @@ class orbit:
 
         # Calculate longitude of ascending node 
         # (angle between I and line of nodes)
-        if i == 0: long_AN = None
+        if i == 0: long_AN = float('NaN')
         else:
             long_AN = np.arccos(n[0]/np.linalg.norm(n))
             if n[1] < 0: long_AN = (2*np.pi) - long_AN   # quadrant check
 
         # Calculate the orbit period
-        if energy >= 0:
-            tp = None
+        if energy >= 0: tp = float('NaN')
         else:
             tp = 2*np.pi/np.sqrt(self.cb['mu']) * a**(3/2)
 
         # Calculate true anamoly of initial condiitons 
         # (angle between periapse and current position)
-        if e_mag == 0: true_anamoly = None
+        if e_mag == 0: true_anamoly = float('NaN')
         else:
             true_anamoly = np.arccos(np.dot(e, self.r0) / (np.linalg.norm(e)*np.linalg.norm(self.r0)))
             if np.dot(self.r0, self.v0) < 0: true_anamoly = (2*np.pi) - true_anamoly  # quadrant check
 
         # Calculate true longitude of periapse
         # (angle between I and eccentricity)
-        if e_mag == 0: true_long_periapse = None
+        if e_mag == 0: true_long_periapse = float('NaN')
         else:
             true_long_periapse = np.arccos(e[0]/np.linalg.norm(e))
             if e[1] < 0: true_long_periapse = (2*np.pi) - true_long_periapse     # quadrant check
 
         # Calculate the argument of latitude at epoch
         # (angle between line of nodes and satellite position)
-        if i == 0: u = None
+        if i == 0: u = float('NaN')
         else:
             u = np.arccos(np.dot(n, self.r0) / (np.linalg.norm(n)*np.linalg.norm(self.r0)))
             if self.r0[2] < 0: u = (2*np.pi) - u  # quadrant check

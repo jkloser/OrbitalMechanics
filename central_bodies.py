@@ -1,3 +1,10 @@
+"""
+John Kloser
+AENG 4150 Orbital Mechanics
+central_bodies.py
+Project 1
+"""
+
 sun_AU = {
     'name':'Sun',
     'mu':1.0,
