@@ -7,7 +7,10 @@ Project 1
 
 import numpy as np
 import central_bodies
-import matplotlib as plt
+import matplotlib.pyplot as plt
+from scipy.integrate import ode
+from mpl_toolkits.mplot3d import Axes3D
+
 ### Add a plot method
 
 class orbit:
@@ -82,9 +85,12 @@ class orbit:
         true_long_epoch = np.arccos(self.r0[0] / np.linalg.norm(self.r0))
         if self.r0[1] < 0: true_long_epoch = (2*np.pi) - true_long_epoch  # quadrant check
 
-        E = np.arccos((e_mag+np.cos(true_anamoly)) / (1+e_mag*np.cos(true_anamoly)))
-        if np.dot(self.r0, self.v0) < 0: E = 360 - E
-        Tp = E - e_mag*np.sin(E)
+        if e_mag < 1:
+            E = np.arccos((e_mag+np.cos(true_anamoly)) / (1+e_mag*np.cos(true_anamoly)))
+            if np.dot(self.r0, self.v0) < 0: E = 360 - E
+            Tp = E - e_mag*np.sin(E)
+        else:
+            Tp = float('NaN')
 
 
         r2d = 180/np.pi
