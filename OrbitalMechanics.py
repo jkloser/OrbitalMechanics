@@ -8,7 +8,7 @@ Project 1
 from math import *
 import numpy as np
 from class_orbit import orbit
-import central_bodies
+import central_bodies as cb
 
 
 ### Enter initial radius and velocity. Replace the dash with a negative sign
@@ -21,6 +21,9 @@ vz = float(input('Enter vz value: ').replace('\U00002013', '-'))
 r0 = np.array([rx, ry, rz])
 v0 = np.array([vx, vy, vz])
 
+cb_choose = input('Choose earth_DU, earth_metric, sun_AU, sun_metric: ')
+cb_list = {'earth_DU':cb.earth_DU, 'earth_metric':cb.earth_metric, 'sun_AU':cb.sun_AU, 'sun_metric':cb.sun_metric}
+
 """
 r0 = np.array([-6045, -3490, 2500])
 v0 = np.array([-3.457, 6.618, 2.533])
@@ -32,6 +35,6 @@ DUTU = 7.905368
 
 ### Choose a central body and units: sun_AU, sun_metric, earth_DU, earth_metric
 
-satellite = orbit(r0, v0, central_bodies.earth_DU)
+satellite = orbit(r0, v0, cb_list[cb_choose])
 
 satellite.rv2elem()

@@ -9,8 +9,6 @@ import numpy as np
 import central_bodies
 import matplotlib as plt
 ### Add a plot method
-### Check fringe cases: undefined angles, parabola, hyperbola, circular orbits
-### tolerances for special cases (abs(i) < 0.0001)
 
 class orbit:
     def __init__(self, r, v, cb = central_bodies.earth_DU):
@@ -54,9 +52,9 @@ class orbit:
             if n[1] < 0: long_AN = (2*np.pi) - long_AN   # quadrant check
 
         # Calculate the orbit period
-        if energy >= 0: tp = float('NaN')
+        if energy >= 0: period = float('NaN')
         else:
-            tp = 2*np.pi/np.sqrt(self.cb['mu']) * a**(3/2)
+            period = 2*np.pi/np.sqrt(self.cb['mu']) * a**(3/2)
 
         # Calculate true anamoly of initial condiitons 
         # (angle between periapse and current position)
@@ -84,6 +82,11 @@ class orbit:
         true_long_epoch = np.arccos(self.r0[0] / np.linalg.norm(self.r0))
         if self.r0[1] < 0: true_long_epoch = (2*np.pi) - true_long_epoch  # quadrant check
 
+        E = np.arccos((e_mag+np.cos(true_anamoly)) / (1+e_mag*np.cos(true_anamoly)))
+        if np.dot(self.r0, self.v0) < 0: E = 360 - E
+        Tp = E - e_mag*np.sin(E)
+
+
         r2d = 180/np.pi
 
         if print_val:
@@ -92,13 +95,14 @@ class orbit:
             print('i = ' + str(i*r2d))
             print('\u03C9 = ' + str(arg_periapse*r2d))
             print('\u03A9 = ' + str(long_AN*r2d))
-            print('period = ' + str(tp))
+            print('period = ' + str(period))
             print('\u03BD = ' + str(true_anamoly*r2d))
             print('\u03A0 = ' + str(true_long_periapse*r2d))
             print('u = ' + str(u*r2d))
             print('l = ' + str(true_long_epoch*r2d))
+            print('Tp = ' + str(Tp))
 
-        return np.array([a, e_mag, i, arg_periapse, long_AN, tp, true_anamoly, true_long_periapse, u, true_long_epoch])
+        return np.array([a, e_mag, i, arg_periapse, long_AN, period, true_anamoly, true_long_periapse, u, true_long_epoch])
 
     def rotation_matrix(self):
         elem = self.rv2elem(print_val=False)
