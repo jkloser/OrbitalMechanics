@@ -7,7 +7,7 @@ Project 1
 
 import numpy as np
 import central_bodies
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from scipy.integrate import ode
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -63,7 +63,7 @@ class orbit:
         # (angle between periapse and current position)
         if e_mag == 0: true_anamoly = float('NaN')
         else:
-            true_anamoly = np.arccos(np.dot(e, self.r0) / (np.linalg.norm(e)*np.linalg.norm(self.r0)))
+            true_anamoly = np.arccos(np.dot(e, self.r0) / (e_mag*np.linalg.norm(self.r0)))
             if np.dot(self.r0, self.v0) < 0: true_anamoly = (2*np.pi) - true_anamoly  # quadrant check
 
         # Calculate true longitude of periapse

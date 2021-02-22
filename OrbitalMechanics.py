@@ -29,8 +29,8 @@ r0 = np.array([-6045, -3490, 2500])
 v0 = np.array([-3.457, 6.618, 2.533])
 """
 
-DU = 6378.145
-DUTU = 7.905368
+# DU = 6378.145
+# DUTU = 7.905368
 
 
 ### Choose a central body and units: sun_AU, sun_metric, earth_DU, earth_metric
