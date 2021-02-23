@@ -7,7 +7,7 @@ Project 1
 
 from math import *
 import numpy as np
-from class_orbit import orbit
+from class_orbit import *
 import central_bodies as cb
 
 
