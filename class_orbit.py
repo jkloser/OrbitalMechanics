@@ -41,7 +41,7 @@ class orbit:
 
         # Calculate argument of periapse
         # (angle between the line of nodes and eccentricity vector)
-        if i == 0 or e_mag == 0: arg_periapse = float('NaN')
+        if i == 0 or e_mag == 0 or i == 180: arg_periapse = float('NaN')
         else:
             arg_periapse = np.arccos(np.dot(n, e) / (np.linalg.norm(n)*e_mag))
             if e[2] < 0: arg_periapse = (2*np.pi) - arg_periapse    # quadrant check
@@ -49,7 +49,7 @@ class orbit:
 
         # Calculate longitude of ascending node 
         # (angle between I and line of nodes)
-        if i == 0: long_AN = float('NaN')
+        if i == 0 or i == 180: long_AN = float('NaN')
         else:
             long_AN = np.arccos(n[0]/np.linalg.norm(n))
             if n[1] < 0: long_AN = (2*np.pi) - long_AN   # quadrant check
@@ -67,7 +67,7 @@ class orbit:
             if np.dot(self.r0, self.v0) < 0: true_anamoly = (2*np.pi) - true_anamoly  # quadrant check
 
         # Calculate true longitude of periapse
-        # (angle between I and eccentricity)
+        # (angle between I and eccentricity/periapse)
         if e_mag == 0: true_long_periapse = float('NaN')
         else:
             true_long_periapse = np.arccos(e[0]/np.linalg.norm(e))
@@ -75,7 +75,7 @@ class orbit:
 
         # Calculate the argument of latitude at epoch
         # (angle between line of nodes and satellite position)
-        if i == 0: u = float('NaN')
+        if i == 0 or i == 180: u = float('NaN')
         else:
             u = np.arccos(np.dot(n, self.r0) / (np.linalg.norm(n)*np.linalg.norm(self.r0)))
             if self.r0[2] < 0: u = (2*np.pi) - u  # quadrant check
@@ -89,6 +89,7 @@ class orbit:
             E = np.arccos((e_mag+np.cos(true_anamoly)) / (1+e_mag*np.cos(true_anamoly)))
             if np.dot(self.r0, self.v0) < 0: E = 360 - E
             Tp = E - e_mag*np.sin(E)
+        # Add hyperbolic orbit
         else:
             Tp = float('NaN')
 
@@ -108,7 +109,7 @@ class orbit:
             print('l = ' + str(true_long_epoch*r2d))
             print('Tp = ' + str(Tp))
 
-        return np.array([a, e_mag, i, arg_periapse, long_AN, period, true_anamoly, true_long_periapse, u, true_long_epoch])
+        return np.array([a, e_mag, i, arg_periapse, long_AN, period, true_anamoly, true_long_periapse, u, true_long_epoch, Tp])
 
     def rotation_matrix(self):
         elem = self.rv2elem(print_val=False)
