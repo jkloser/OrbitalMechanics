@@ -42,7 +42,7 @@ class orbit:
 
         # Calculate argument of periapse
         # (angle between the line of nodes and eccentricity vector)
-        if round(i,self.tol) == 0 or round(e_mag,self.tol) == 0 or round(i,self.tol) == 180: arg_periapse = float('NaN')
+        if round(i,self.tol) == 0 or round(e_mag,self.tol) == 0 or round(i-np.pi,self.tol) == 0: arg_periapse = float('NaN')
         else:
             arg_periapse = np.arccos(np.dot(n, e) / (np.linalg.norm(n)*e_mag))
             if e[2] < 0: arg_periapse = (2*np.pi) - arg_periapse    # quadrant check
@@ -50,7 +50,7 @@ class orbit:
 
         # Calculate longitude of ascending node 
         # (angle between I and line of nodes)
-        if round(i,self.tol) == 0 or round(i,self.tol) == 180: long_AN = float('NaN')
+        if round(i,self.tol) == 0 or round(i-np.pi,self.tol) == 0: long_AN = float('NaN')
         else:
             long_AN = np.arccos(n[0]/np.linalg.norm(n))
             if n[1] < 0: long_AN = (2*np.pi) - long_AN   # quadrant check
@@ -76,7 +76,7 @@ class orbit:
 
         # Calculate the argument of latitude at epoch
         # (angle between line of nodes and satellite position)
-        if round(i,self.tol) == 0 or round(i,self.tol) == 180: u = float('NaN')
+        if round(i,self.tol) == 0 or round(i-np.pi,self.tol) == 0: u = float('NaN')
         else:
             u = np.arccos(np.dot(n, self.r0) / (np.linalg.norm(n)*np.linalg.norm(self.r0)))
             if self.r0[2] < 0: u = (2*np.pi) - u  # quadrant check
@@ -95,7 +95,7 @@ class orbit:
             Tp = (e_mag*np.sin(E) - E)/k
 
         elif e_mag > 1:
-            E = np.arctanh(np.sqrt((e_mag-1)/(e_mag+1)) * np.tan(true_anamoly/2))
+            E = 2*np.arctanh(np.sqrt((e_mag-1)/(e_mag+1)) * np.tan(true_anamoly/2))
             #E = E%(2*np.pi)
             # Double Check this quadrant check
             if np.dot(self.r0, self.v0) < 0: E = 2*np.pi + E  # quadrant check
