@@ -29,7 +29,7 @@ class orbit:
         n = np.cross([0,0,1], h)
 
         # Calculate the semi-major axis. Returns 0 for a parabolic orbit.
-        if round(energy,tol) == 0:
+        if round(energy,self.tol) == 0:
             a = float('NaN')
         else:
             a = -self.cb['mu']/(2*energy)
@@ -42,7 +42,7 @@ class orbit:
 
         # Calculate argument of periapse
         # (angle between the line of nodes and eccentricity vector)
-        if round(i,tol) == 0 or round(e_mag,tol) == 0 or round(i,tol) == 180: arg_periapse = float('NaN')
+        if round(i,self.tol) == 0 or round(e_mag,self.tol) == 0 or round(i,self.tol) == 180: arg_periapse = float('NaN')
         else:
             arg_periapse = np.arccos(np.dot(n, e) / (np.linalg.norm(n)*e_mag))
             if e[2] < 0: arg_periapse = (2*np.pi) - arg_periapse    # quadrant check
@@ -50,7 +50,7 @@ class orbit:
 
         # Calculate longitude of ascending node 
         # (angle between I and line of nodes)
-        if round(i,tol) == 0 or round(i,tol) == 180: long_AN = float('NaN')
+        if round(i,self.tol) == 0 or round(i,self.tol) == 180: long_AN = float('NaN')
         else:
             long_AN = np.arccos(n[0]/np.linalg.norm(n))
             if n[1] < 0: long_AN = (2*np.pi) - long_AN   # quadrant check
@@ -62,21 +62,21 @@ class orbit:
 
         # Calculate true anamoly of initial condiitons 
         # (angle between periapse and current position)
-        if round(e_mag,tol) == 0: true_anamoly = float('NaN')
+        if round(e_mag,self.tol) == 0: true_anamoly = float('NaN')
         else:
             true_anamoly = np.arccos(np.dot(e, self.r0) / (e_mag*np.linalg.norm(self.r0)))
             if np.dot(self.r0, self.v0) < 0: true_anamoly = (2*np.pi) - true_anamoly  # quadrant check
 
         # Calculate true longitude of periapse
         # (angle between I and eccentricity/periapse)
-        if round(e_mag,tol) == 0: true_long_periapse = float('NaN')
+        if round(e_mag,self.tol) == 0: true_long_periapse = float('NaN')
         else:
             true_long_periapse = np.arccos(e[0]/np.linalg.norm(e))
             if e[1] < 0: true_long_periapse = (2*np.pi) - true_long_periapse     # quadrant check
 
         # Calculate the argument of latitude at epoch
         # (angle between line of nodes and satellite position)
-        if round(i,tol) == 0 or round(i,tol) == 180: u = float('NaN')
+        if round(i,self.tol) == 0 or round(i,self.tol) == 180: u = float('NaN')
         else:
             u = np.arccos(np.dot(n, self.r0) / (np.linalg.norm(n)*np.linalg.norm(self.r0)))
             if self.r0[2] < 0: u = (2*np.pi) - u  # quadrant check
@@ -86,15 +86,20 @@ class orbit:
         true_long_epoch = np.arccos(self.r0[0] / np.linalg.norm(self.r0))
         if self.r0[1] < 0: true_long_epoch = (2*np.pi) - true_long_epoch  # quadrant check
 
+        # Calculate the eccentric anamoly and time since perigee
+        n = np.sqrt(self.cb['mu']/a**3)
         if e_mag < 1:
-            E = np.arccos((e_mag+np.cos(true_anamoly)) / (1+e_mag*np.cos(true_anamoly)))
-            if np.dot(self.r0, self.v0) < 0: E = 360 - E
-            Tp = E - e_mag*np.sin(E)
+            # E = np.arccos((a-np.linalg.norm(self.r0)) / (a*e_mag))
+            # E = np.arccos((e_mag+np.cos(true_anamoly)) / (1+e_mag*np.cos(true_anamoly)))
+            E = 2 * np.arctan(np.sqrt((1-e_mag)/(1+e_mag))*np.tan(true_anamoly/2))
+            if np.dot(self.r0, self.v0) < 0: E = 2*np.pi + E
+            Tp = (e_mag*np.sin(E) - E)/n
+
         elif e_mag > 1:
             E = np.arctanh(np.sqrt((e-1)/(e+1)) * np.tan(true_anamoly/2))
             # Double Check this quadrant check
-            if np.dot(self.r0, self.v0) < 0: E = 360 - E  # quadrant check
-            Tp = E  - e_mag*np.sin(E)
+            if np.dot(self.r0, self.v0) < 0: E = 2*np.pi - E  # quadrant check
+            Tp = (e_mag*np.sin(E) - E)/n
         else:
             Tp = float('NaN')
 

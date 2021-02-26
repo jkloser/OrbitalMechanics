@@ -25,15 +25,11 @@ cb_choose = input('Choose earth_DU, earth_metric, sun_AU, sun_metric: ')
 cb_list = {'earth_DU':cb.earth_DU, 'earth_metric':cb.earth_metric, 'sun_AU':cb.sun_AU, 'sun_metric':cb.sun_metric}
 
 """
-r0 = np.array([-6045, -3490, 2500])
-v0 = np.array([-3.457, 6.618, 2.533])
+r0 = np.array([1.023, 1.076, 1.011])
+v0 = np.array([0.62, 0.7, -0.25])
 """
-
 # DU = 6378.145
 # DUTU = 7.905368
-
-
-### Choose a central body and units: sun_AU, sun_metric, earth_DU, earth_metric
 
 satellite = orbit(r0, v0, cb_list[cb_choose])
 
