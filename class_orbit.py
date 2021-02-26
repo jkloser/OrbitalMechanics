@@ -87,19 +87,19 @@ class orbit:
         if self.r0[1] < 0: true_long_epoch = (2*np.pi) - true_long_epoch  # quadrant check
 
         # Calculate the eccentric anamoly and time since perigee
-        n = np.sqrt(self.cb['mu']/a**3)
+        k = np.sqrt(self.cb['mu']/a**3)
         if e_mag < 1:
-            # E = np.arccos((a-np.linalg.norm(self.r0)) / (a*e_mag))
-            # E = np.arccos((e_mag+np.cos(true_anamoly)) / (1+e_mag*np.cos(true_anamoly)))
             E = 2 * np.arctan(np.sqrt((1-e_mag)/(1+e_mag))*np.tan(true_anamoly/2))
+            #E = E%(2*np.pi)
             if np.dot(self.r0, self.v0) < 0: E = 2*np.pi + E
-            Tp = (e_mag*np.sin(E) - E)/n
+            Tp = (e_mag*np.sin(E) - E)/k
 
         elif e_mag > 1:
             E = np.arctanh(np.sqrt((e_mag-1)/(e_mag+1)) * np.tan(true_anamoly/2))
+            #E = E%(2*np.pi)
             # Double Check this quadrant check
-            if np.dot(self.r0, self.v0) < 0: E = 2*np.pi - E  # quadrant check
-            Tp = (e_mag*np.sin(E) - E)/n
+            if np.dot(self.r0, self.v0) < 0: E = 2*np.pi + E  # quadrant check
+            Tp = (e_mag*np.sin(E) - E)/k
         else:
             Tp = float('NaN')
 
