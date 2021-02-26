@@ -28,3 +28,9 @@ earth_metric = {
     'mu':1.0,
     'radius':6378.145
     }
+
+earth_imperial = {
+    'name':'earth',
+    'mu':1.407647e16,
+    'radius':3963.195
+}

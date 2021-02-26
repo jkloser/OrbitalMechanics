@@ -96,7 +96,7 @@ class orbit:
             Tp = (e_mag*np.sin(E) - E)/n
 
         elif e_mag > 1:
-            E = np.arctanh(np.sqrt((e-1)/(e+1)) * np.tan(true_anamoly/2))
+            E = np.arctanh(np.sqrt((e_mag-1)/(e_mag+1)) * np.tan(true_anamoly/2))
             # Double Check this quadrant check
             if np.dot(self.r0, self.v0) < 0: E = 2*np.pi - E  # quadrant check
             Tp = (e_mag*np.sin(E) - E)/n
@@ -157,7 +157,16 @@ class orbit:
                         [R21, R22, R23],
                         [R31, R32, R33]])
 
-def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0):
+def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0, d2r = False):
+
+    if d2r == True:
+        conv = np.pi/180
+        phi *= conv
+        Az *= conv
+        delta *= conv
+        GMST *= conv
+        lambdaE *= conv
+
     # Transforms vehicle centered 
     lst = GMST+lambdaE
     rx = r*np.cos(delta)*np.cos(lst)
@@ -165,14 +174,13 @@ def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0):
     rz = r*np.sin(delta)
 
     v_S = -v*np.cos(phi)*np.cos(Az)
-    n_E = v*np.cos(phi)*np.sin(Az)
-    n_R = v*np.sin(phi)
+    v_E = v*np.cos(phi)*np.sin(Az)
+    v_R = v*np.sin(phi)
 
-    vx = v_S*np.sin(delta)*np.cos(lst) - V_E*np.sin(lst) + V_R*np.cos(delta)*np.cos(lst)
-    vy = v_S*np.sin(delta)*np.sin(lst) + V_E*np.cos(lst) + V_R*np.cos(delta)*np.sin(lst)
-    vz = -v_S*cos(delta) + v_R*np.sin(delta)
+    vx = v_S*np.sin(delta)*np.cos(lst) - v_E*np.sin(lst) + v_R*np.cos(delta)*np.cos(lst)
+    vy = v_S*np.sin(delta)*np.sin(lst) + v_E*np.cos(lst) + v_R*np.cos(delta)*np.sin(lst)
+    vz = -v_S*np.cos(delta) + v_R*np.sin(delta)
     
-    return np.array([[rx, ry, rz],
-                    [vx, vy, vz]])
+    return np.array([rx, ry, rz]), np.array([vx, vy, vz])
 
 
