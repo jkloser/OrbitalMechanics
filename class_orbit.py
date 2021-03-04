@@ -123,16 +123,17 @@ class orbit:
     def univ_formulation(self, dt, print_val=True, plot=True):
         r0_mag = np.linalg.norm(self.r0)
         v0_mag = np.linalg.norm(self.v0)
-        energy = v0**2/2 - self.cb['mu']/r0
+        energy = v0_mag**2/2 - self.cb['mu']/r0_mag
         a = -self.cb['mu']/(2*energy)
 
-        alpha = (2*self.cb['mu']/r0 - v0**2)/self.cb['mu'] # = 1/a
+        alpha = (2*self.cb['mu']/r0_mag - v0_mag**2)/self.cb['mu'] # = 1/a
 
         if alpha > 0: # ellipse
             chi = np.sqrt(self.cb['mu']) * dt * alpha
         else: # hyperbola
             chi = np.sign(dt) * np.sqrt(-a) * np.log(-2*self.cb['mu']*alpha*dt / (np.dot(self.r0, self.v0)+np.sign(dt)*np.sqrt(self.cb['mu']*a)*(1-r0_mag/a)))
 
+        iter = 1
         while True:
             z = chi**2*alpha
 
@@ -143,26 +144,28 @@ class orbit:
                 c = (1-np.cosh(np.sqrt(-z)))/z
                 s = (np.sinh(np.sqrt(-z))-np.sqrt(-z))/np.sqrt((-z)**3)
 
-            r = chi**2*c + np.dot(self.r0, self.v0)*chi*(1-z*s)/np.sqrt(self.cb['mu']) + r_mag*(1-z*c)
-            dchi = (np.sqrt*dt - chi**3*s - np.dot(self.r0, self.v0)*chi**2*c/np.sqrt(self.cb['mu']) - r0_mag*chi*(1-z*s))/r
+            r = chi**2*c + np.dot(self.r0, self.v0)*chi*(1-z*s)/np.sqrt(self.cb['mu']) + r0_mag*(1-z*c)
+            dchi = (np.sqrt(self.cb['mu'])*dt - chi**3*s - np.dot(self.r0, self.v0)*chi**2*c/np.sqrt(self.cb['mu']) - r0_mag*chi*(1-z*s))/r
 
-            if dchi < self.tol:
+            if round(dchi, self.tol) == 0.0:
                 chi = chi + dchi
+                print('iterations: ' + str(iter))
                 break
             else:
                 chi = chi + dchi
+                iter+=1
 
-        f = 1-chi**2*c/r_mag
+        f = 1-chi**2*c/r0_mag
         g = dt - chi**3*s/np.sqrt(self.cb['mu'])
         gdot = 1 - chi**2*c/r
-        fdot = np.sqrt(self.cb['mu'])*chi*(z*s-1)/(r*r_mag)
+        fdot = np.sqrt(self.cb['mu'])*chi*(z*s-1)/(r*r0_mag)
 
-        check = f*g-fdot*gdot - 1
+        check = f*gdot-fdot*g - 1
         r1 = f*self.r0 + g*self.v0
         v1 = fdot*self.r0 + gdot*self.v0
 
         if print_val:
-            if abs(check) > self.tol:
+            if round(check, self.tol) != 0:
                 print('f and g check not valid')
 
             print('final X = ' + str(chi))
@@ -171,15 +174,16 @@ class orbit:
             print('fdot = ' + str(fdot))
             print('gdot = ' + str(gdot))
             print('check = ' + str(check))
+            print()
             print('r1 = [' + str(r1[0]) + ', ' + str(r1[1]) + ', ' + str(r1[2]) + ']')
             print('v1 = [' + str(v1[0]) + ', ' + str(v1[1]) + ', ' + str(v1[2]) + ']')
 
-        if plot:
+        # if plot:
             # define and call a plotting function
-
+            # return 0
         return r1, v1
 
-    def rotation_matrix(self):
+    def rot_PQW2IJK(self):
         elem = self.rv2elem(print_val=False)
 
         i = elem[3]
@@ -216,7 +220,7 @@ class orbit:
                         [R21, R22, R23],
                         [R31, R32, R33]])
 
-    def plot_PQW(self)
+    def plot_PQW(self):
         elements = rv2elem(print_val=False)
         # show line of nodes, central body radius, periapse, apoapse
 
@@ -230,7 +234,7 @@ def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0, d2r = False):
         GMST *= conv
         lambdaE *= conv
 
-    # Transforms vehicle centered 
+    # Transforms vehicle centered
     lst = GMST+lambdaE
     rx = r*np.cos(delta)*np.cos(lst)
     ry = r*np.cos(delta)*np.sin(lst)
