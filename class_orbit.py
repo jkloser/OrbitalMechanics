@@ -7,9 +7,9 @@ Project 1
 
 import numpy as np
 import central_bodies
-#import matplotlib.pyplot as plt
-from scipy.integrate import ode
-from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+#from scipy.integrate import ode
+#from mpl_toolkits.mplot3d import Axes3D
 
 ### Add a plot method
 
@@ -120,6 +120,65 @@ class orbit:
 
         return np.array([a, e_mag, i, arg_periapse, long_AN, period, true_anamoly, true_long_periapse, u, true_long_epoch, Tp])
 
+    def univ_formulation(self, dt, print_val=True, plot=True):
+        r0_mag = np.linalg.norm(self.r0)
+        v0_mag = np.linalg.norm(self.v0)
+        energy = v0**2/2 - self.cb['mu']/r0
+        a = -self.cb['mu']/(2*energy)
+
+        alpha = (2*self.cb['mu']/r0 - v0**2)/self.cb['mu'] # = 1/a
+
+        if alpha > 0: # ellipse
+            chi = np.sqrt(self.cb['mu']) * dt * alpha
+        else: # hyperbola
+            chi = np.sign(dt) * np.sqrt(-a) * np.log(-2*self.cb['mu']*alpha*dt / (np.dot(self.r0, self.v0)+np.sign(dt)*np.sqrt(self.cb['mu']*a)*(1-r0_mag/a)))
+
+        while True:
+            z = chi**2*alpha
+
+            if z > 0: # ellipse
+                c = (1-np.cos(np.sqrt(z)))/z
+                s = (np.sqrt(z)-np.sin(np.sqrt(z)))/np.sqrt(z**3)
+            else: # hyperbola
+                c = (1-np.cosh(np.sqrt(-z)))/z
+                s = (np.sinh(np.sqrt(-z))-np.sqrt(-z))/np.sqrt((-z)**3)
+
+            r = chi**2*c + np.dot(self.r0, self.v0)*chi*(1-z*s)/np.sqrt(self.cb['mu']) + r_mag*(1-z*c)
+            dchi = (np.sqrt*dt - chi**3*s - np.dot(self.r0, self.v0)*chi**2*c/np.sqrt(self.cb['mu']) - r0_mag*chi*(1-z*s))/r
+
+            if dchi < self.tol:
+                chi = chi + dchi
+                break
+            else:
+                chi = chi + dchi
+
+        f = 1-chi**2*c/r_mag
+        g = dt - chi**3*s/np.sqrt(self.cb['mu'])
+        gdot = 1 - chi**2*c/r
+        fdot = np.sqrt(self.cb['mu'])*chi*(z*s-1)/(r*r_mag)
+
+        check = f*g-fdot*gdot - 1
+        r1 = f*self.r0 + g*self.v0
+        v1 = fdot*self.r0 + gdot*self.v0
+
+        if print_val:
+            if abs(check) > self.tol:
+                print('f and g check not valid')
+
+            print('final X = ' + str(chi))
+            print('f = ' + str(f))
+            print('g = ' + str(g))
+            print('fdot = ' + str(fdot))
+            print('gdot = ' + str(gdot))
+            print('check = ' + str(check))
+            print('r1 = [' + str(r1[0]) + ', ' + str(r1[1]) + ', ' + str(r1[2]) + ']')
+            print('v1 = [' + str(v1[0]) + ', ' + str(v1[1]) + ', ' + str(v1[2]) + ']')
+
+        if plot:
+            # define and call a plotting function
+
+        return r1, v1
+
     def rotation_matrix(self):
         elem = self.rv2elem(print_val=False)
 
@@ -156,6 +215,10 @@ class orbit:
         return np.array([[R11, R12, R13],
                         [R21, R22, R23],
                         [R31, R32, R33]])
+
+    def plot_PQW(self)
+        elements = rv2elem(print_val=False)
+        # show line of nodes, central body radius, periapse, apoapse
 
 def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0, d2r = False):
 
