@@ -120,7 +120,7 @@ class orbit:
 
         return np.array([a, e_mag, i, arg_periapse, long_AN, period, true_anamoly, true_long_periapse, u, true_long_epoch, Tp])
 
-    def univ_formulation(self, dt, print_val=True, plot=True):
+    def univ_formulation(self, dt, print_val=True, show_plot=True):
         r0_mag = np.linalg.norm(self.r0)
         v0_mag = np.linalg.norm(self.v0)
         energy = v0**2/2 - self.cb['mu']/r0
@@ -174,10 +174,12 @@ class orbit:
             print('r1 = [' + str(r1[0]) + ', ' + str(r1[1]) + ', ' + str(r1[2]) + ']')
             print('v1 = [' + str(v1[0]) + ', ' + str(v1[1]) + ', ' + str(v1[2]) + ']')
 
-        if plot:
+        # if show_plot:
             # define and call a plotting function
+            self.plot_PQW(r1)
 
         return r1, v1
+
 
     def rotation_matrix(self):
         elem = self.rv2elem(print_val=False)
@@ -198,8 +200,6 @@ class orbit:
         elif elem[1] == 0:
             arg_periapse = 0
 
-
-
         R11 = cos(long_AN)*cos(arg_periapse) - sin(long_AN)*sin(arg_periapse)*cos(i)
         R12 = -cos(long_AN)*sin(arg_periapse) - sin(long_AN)*cos(arg_periapse)*cos(i)
         R13 = sin(long_AN)*sin(i)
@@ -216,8 +216,49 @@ class orbit:
                         [R21, R22, R23],
                         [R31, R32, R33]])
 
-    def plot_PQW(self)
-        elements = rv2elem(print_val=False)
+    def plot_PQW(self, elements = [], points, dt)
+        if elements == []:
+            elements = self.rv2elem(print_val=False)
+        e_mag = elements[1]
+        p = elements[0]*(1-e_mag**2)
+        arg_periapse = elements[3]
+
+        theta = np.linspace(0, 2*np.pi, 20)
+        x_cb = self.cb['radius']*np.cos(theta)
+        y_cb = self.cb['radius']*np.sin(theta)
+
+        fig = plt.figure()
+        ax = fig.gca()
+        ax.fill(x_cb, y_cb, "b")
+
+        r_orbit = p/(1+e*np.cos(theta))
+        true_anamoly = theta+arg_periapse
+        x_orbit = r_orbit*np.cos(true_anamoly)
+        y_orbit = r_orbit*np.sin(true_anamoly)
+        ax.plt(x_orbit, y_orbit)
+
+        indx = points.shape
+        if len(indx) > 1:
+            indx = indx[:,0]
+            rs = [None]*len(points)
+            nus = rs
+            for i in indx:
+                # calculate polar coords
+                rs[indx] = np.linalg.norm(points[indx,:])
+                nus[indx] = (p/rs[indx] - 1)/e_mag
+
+                # convert to cartesian
+                xs[indx] = rs[indx]*np.cos(nus[indx])
+                ys[indx] = rs[indx]*np.sin(nus[indx])
+                indx+=1
+                # plot various points with a larger marker
+        elif indx > 0:
+            rs = np.linalg.norm(points)
+            nus = (p/rs-1)/e_mag
+
+
+        # 2D in fundamental plane: plot circle for cb, use polar coords to plot orbit
+        # add markers to various calculated points
         # show line of nodes, central body radius, periapse, apoapse
 
 def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0, d2r = False):
