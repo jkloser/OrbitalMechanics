@@ -180,7 +180,7 @@ class orbit:
 
         if show_plot:
             # define and call a plotting function
-            self.plot_PQW(r1)
+            self.plot_PQW(r1, dt)
 
         return r1, v1
 
@@ -219,27 +219,42 @@ class orbit:
                         [R21, R22, R23],
                         [R31, R32, R33]])
 
-    def plot_PQW(self, elements = [], points, dt)
+    def plot_PQW(self, points, dt, elements = []):
         if elements == []:
-            elements = self.rv2elem(print_val=False)
+            elements = self.rv2elem(print_val=True)
         e_mag = elements[1]
         p = elements[0]*(1-e_mag**2)
-        arg_periapse = elements[3]
+        true_long_periapse = elements[7]
 
-        theta = np.linspace(0, 2*np.pi, 20)
+        theta = np.linspace(0, 2*np.pi, 200)
         x_cb = self.cb['radius']*np.cos(theta)
         y_cb = self.cb['radius']*np.sin(theta)
 
-        fig = plt.figure()
-        ax = fig.gca()
+        fig,ax = plt.subplots()
         ax.fill(x_cb, y_cb, "b")
 
-        r_orbit = p/(1+e*np.cos(theta))
-        true_anamoly = theta+arg_periapse
-        x_orbit = r_orbit*np.cos(true_anamoly)
-        y_orbit = r_orbit*np.sin(true_anamoly)
-        ax.plt(x_orbit, y_orbit)
+        if np.isnan(true_long_periapse):
+            true_long_periapse = 0
 
+        r_orbit = p/(1+e_mag*np.cos(theta))
+        true_long_epoch = theta+true_long_periapse
+        x_orbit = r_orbit*np.cos(true_long_epoch)
+        y_orbit = r_orbit*np.sin(true_long_epoch)
+        ax.plot(x_orbit, y_orbit)
+
+        ax.arrow(0,0,0.5*r_orbit[0],0, head_width=0.03, head_length=0.03, fc='k', ec='k')
+        ax.arrow(0,0,0,0.5*r_orbit[0], head_width=0.03, head_length=0.03, fc='k', ec='k')
+        ax.annotate('x', xy=(0.55*r_orbit[0], 0), xycoords='data')
+        ax.annotate('y', xy=(0, 0.55*r_orbit[0]), xycoords='data')
+        ax.arrow(0,0,x_orbit[0],y_orbit[0], head_width = 0.02, head_length=0.02, fc='k', ec='k')
+        ax.annotate('e', xy=(1.05*x_orbit[0],1.05*y_orbit[0]), xycoords='data')
+        ax.set(xlabel=self.cb['units'], ylabel=self.cb['units'])
+
+        #x0,y0
+        plt.show()
+
+        # equal axes to see eccentricity,  
+"""
         indx = points.shape
         if len(indx) > 1:
             indx = indx[:,0]
@@ -248,7 +263,7 @@ class orbit:
             for i in indx:
                 # calculate polar coords
                 rs[indx] = np.linalg.norm(points[indx,:])
-                nus[indx] = (p/rs[indx] - 1)/e_mag
+                nus[indx] = np.arccos((p/rs[indx] - 1)/e_mag)
 
                 # convert to cartesian
                 xs[indx] = rs[indx]*np.cos(nus[indx])
@@ -257,8 +272,8 @@ class orbit:
                 # plot various points with a larger marker
         elif indx > 0:
             rs = np.linalg.norm(points)
-            nus = (p/rs-1)/e_mag
-
+            nus = np.arccos((p/rs-1)/e_mag)
+"""
 
         # 2D in fundamental plane: plot circle for cb, use polar coords to plot orbit
         # add markers to various calculated points
