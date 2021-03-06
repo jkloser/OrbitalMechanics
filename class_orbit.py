@@ -128,11 +128,13 @@ class orbit:
 
         alpha = (2*self.cb['mu']/r0_mag - v0_mag**2)/self.cb['mu'] # = 1/a
 
+        # Add for loop here for an array of dt, initialize r and v
         if alpha > 0: # ellipse
             chi = np.sqrt(self.cb['mu']) * dt * alpha
         else: # hyperbola
             chi = np.sign(dt) * np.sqrt(-a) * np.log(-2*self.cb['mu']*alpha*dt / (np.dot(self.r0, self.v0)+np.sign(dt)*np.sqrt(self.cb['mu']*a)*(1-r0_mag/a)))
 
+        # Iterating until the change in universal variable is less than tolerance
         iter = 1
         while True:
             z = chi**2*alpha
@@ -155,11 +157,13 @@ class orbit:
                 chi = chi + dchi
                 iter+=1
 
+        # f and g functions
         f = 1-chi**2*c/r0_mag
         g = dt - chi**3*s/np.sqrt(self.cb['mu'])
         gdot = 1 - chi**2*c/r
         fdot = np.sqrt(self.cb['mu'])*chi*(z*s-1)/(r*r0_mag)
 
+        # Check accuracy and compute new radius/velocity
         check = f*gdot-fdot*g - 1
         r1 = f*self.r0 + g*self.v0
         v1 = fdot*self.r0 + gdot*self.v0
@@ -179,7 +183,6 @@ class orbit:
             print('v1 = [' + str(v1[0]) + ', ' + str(v1[1]) + ', ' + str(v1[2]) + ']')
 
         if show_plot:
-            # define and call a plotting function
             self.plot_PQW(r1, dt)
 
         return r1, v1
@@ -219,29 +222,37 @@ class orbit:
                         [R21, R22, R23],
                         [R31, R32, R33]])
 
-    def plot_PQW(self, points, dt, elements = []):
+    def plot_PQW(self, points=[], dt=[], elements = []):
+        # Get orbital elements if not provided
         if elements == []:
             elements = self.rv2elem(print_val=True)
         e_mag = elements[1]
         p = elements[0]*(1-e_mag**2)
         true_long_periapse = elements[7]
 
+        # Create angles for calculating polar coords
         theta = np.linspace(0, 2*np.pi, 200)
+        # Central body plot
         x_cb = self.cb['radius']*np.cos(theta)
         y_cb = self.cb['radius']*np.sin(theta)
 
         fig,ax = plt.subplots()
         ax.fill(x_cb, y_cb, "b")
 
+        # Check if the true longitude of periapse (Pi) exists, if not, set to 0
+        # Indicates circular orbit
         if np.isnan(true_long_periapse):
             true_long_periapse = 0
 
+        # Calculate the radii and the corresponding angles. Convert from polar to cartesian
+        # True longitude at epoch accounts for location of periapsis wrt x-axis
         r_orbit = p/(1+e_mag*np.cos(theta))
         true_long_epoch = theta+true_long_periapse
         x_orbit = r_orbit*np.cos(true_long_epoch)
         y_orbit = r_orbit*np.sin(true_long_epoch)
         ax.plot(x_orbit, y_orbit)
 
+        # Add x-, y-axis arrows, eccentricity vector, annotations, axes units
         ax.arrow(0,0,0.5*r_orbit[0],0, head_width=0.03, head_length=0.03, fc='k', ec='k')
         ax.arrow(0,0,0,0.5*r_orbit[0], head_width=0.03, head_length=0.03, fc='k', ec='k')
         ax.annotate('x', xy=(0.55*r_orbit[0], 0), xycoords='data')
@@ -250,34 +261,27 @@ class orbit:
         ax.annotate('e', xy=(1.05*x_orbit[0],1.05*y_orbit[0]), xycoords='data')
         ax.set(xlabel=self.cb['units'], ylabel=self.cb['units'])
 
-        #x0,y0
+        points = np.insert(points, 0, self.r0, axis=0)
+        dt = np.insert(dt, 0, 0, axis=0)
+
+        if len(points.shape) > 1:
+            r_point = np.linalg.norm(points, axis=1)
+            true_anamoly = np.arccos((p/r_point-1)/e_mag)
+
+        else:
+            r_point = np.linalg.norm(points)
+            true_anamoly = np.arccos((p/r_point-1)/e_mag)
+
+        true_long_periapse_point = true_anamoly+true_long_periapse
+        x_point = r_point*np.cos(true_long_periapse_point)
+        y_point = r_point*np.sin(true_long_periapse_point)
+        ax.scatter(x_point, y_point, 'ro')
+
+        for i, txt in enumerate(dt):
+            ax.annotate(round(txt,2), (x_point[i], y_point[i]))
+
+        ax.axis('equal')
         plt.show()
-
-        # equal axes to see eccentricity,  
-"""
-        indx = points.shape
-        if len(indx) > 1:
-            indx = indx[:,0]
-            rs = [None]*len(points)
-            nus = rs
-            for i in indx:
-                # calculate polar coords
-                rs[indx] = np.linalg.norm(points[indx,:])
-                nus[indx] = np.arccos((p/rs[indx] - 1)/e_mag)
-
-                # convert to cartesian
-                xs[indx] = rs[indx]*np.cos(nus[indx])
-                ys[indx] = rs[indx]*np.sin(nus[indx])
-                indx+=1
-                # plot various points with a larger marker
-        elif indx > 0:
-            rs = np.linalg.norm(points)
-            nus = np.arccos((p/rs-1)/e_mag)
-"""
-
-        # 2D in fundamental plane: plot circle for cb, use polar coords to plot orbit
-        # add markers to various calculated points
-        # show line of nodes, central body radius, periapse, apoapse
 
 def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0, d2r = False):
 
