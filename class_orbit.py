@@ -239,10 +239,14 @@ class orbit:
         fig,ax = plt.subplots()
         ax.fill(x_cb, y_cb, "b")
 
-        # Check if the true longitude of periapse (Pi) exists, if not, set to 0
+        # Check if the true longitude of periapse (Pi) exists, if not, set to 0.
         # Indicates circular orbit
         if np.isnan(true_long_periapse):
             true_long_periapse = 0
+
+        if e_mag > 1:
+            # limit radius from going to infinity for hyperbolic orbit
+            theta = theta[(e_mag*np.cos(theta)) <= -1]
 
         # Calculate the radii and the corresponding angles. Convert from polar to cartesian
         # True longitude at epoch accounts for location of periapsis wrt x-axis
