@@ -24,9 +24,11 @@ v0 = np.array([vx, vy, vz])
 cb_list = {'earth_DU':cb.earth_DU, 'earth_metric':cb.earth_metric, 'sun_AU':cb.sun_AU, 'sun_metric':cb.sun_metric}
 
 
-r0 = np.array([-0.2851, 0.9411, 0.0])
-v0 = np.array([-0.9735, -0.2936, 0.0])
-cb_choose = 'sun_AU'
+# r0 = np.array([-0.2851, 0.9411, 0.0])
+# v0 = np.array([-0.9735, -0.2936, 0.0])
+r0 = np.array([1,0,0])
+v0 = np.array([0,2,0])
+cb_choose = 'earth_DU'
 
 # DU = 6378.145
 # DUTU = 7.905368
@@ -34,6 +36,8 @@ cb_choose = 'sun_AU'
 satellite = orbit(r0, v0, cb_list[cb_choose])
 
 #satellite.rv2elem()
+# dt = float(input('Enter time step: ').replace('\U00002013', '-'))
+#dt = 1.7202 # TU
+#[r1, v1] = satellite.univ_formulation(dt)
 
-dt = 1.7202 # TU
-[r1, v1] = satellite.univ_formulation(dt)
+satellite.plot_PQW()

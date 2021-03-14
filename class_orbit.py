@@ -222,7 +222,7 @@ class orbit:
                         [R21, R22, R23],
                         [R31, R32, R33]])
 
-    def plot_PQW(self, points=[], dt=[], elements = []):
+    def plot_PQW(self, points=np.array([]), dt=[], elements = []):
         # Get orbital elements if not provided
         if elements == []:
             elements = self.rv2elem(print_val=True)
@@ -246,7 +246,7 @@ class orbit:
 
         if e_mag > 1:
             # limit radius from going to infinity for hyperbolic orbit
-            theta = theta[(e_mag*np.cos(theta)) <= -1]
+            theta = theta[(e_mag*np.cos(theta)) >= -1]
 
         # Calculate the radii and the corresponding angles. Convert from polar to cartesian
         # True longitude at epoch accounts for location of periapsis wrt x-axis
@@ -256,33 +256,34 @@ class orbit:
         y_orbit = r_orbit*np.sin(true_long_epoch)
         ax.plot(x_orbit, y_orbit)
 
-        # Add x-, y-axis arrows, eccentricity vector, annotations, axes units
-        ax.arrow(0,0,0.5*r_orbit[0],0, head_width=0.03, head_length=0.03, fc='k', ec='k')
-        ax.arrow(0,0,0,0.5*r_orbit[0], head_width=0.03, head_length=0.03, fc='k', ec='k')
-        ax.annotate('x', xy=(0.55*r_orbit[0], 0), xycoords='data')
-        ax.annotate('y', xy=(0, 0.55*r_orbit[0]), xycoords='data')
+        # Add x- & y-axis arrows, eccentricity vector, annotations, axes units
+        ax.arrow(0,0,0.5*abs(r_orbit[0]),0, head_width=0.03, head_length=0.03, fc='k', ec='k')
+        ax.arrow(0,0,0,0.5*abs(r_orbit[0]), head_width=0.03, head_length=0.03, fc='k', ec='k')
+        ax.annotate('x', xy=(0.55*abs(r_orbit[0]), 0), xycoords='data')
+        ax.annotate('y', xy=(0, 0.55*abs(r_orbit[0])), xycoords='data')
         ax.arrow(0,0,x_orbit[0],y_orbit[0], head_width = 0.02, head_length=0.02, fc='k', ec='k')
         ax.annotate('e', xy=(1.05*x_orbit[0],1.05*y_orbit[0]), xycoords='data')
         ax.set(xlabel=self.cb['units'], ylabel=self.cb['units'])
 
-        points = np.insert(points, 0, self.r0, axis=0)
-        dt = np.insert(dt, 0, 0, axis=0)
 
-        if len(points.shape) > 1:
+
+        if points.size > 1:
+            points = np.vstack((self.r0, points))
+            dt = np.vstack((0.00, dt))
             r_point = np.linalg.norm(points, axis=1)
             true_anamoly = np.arccos((p/r_point-1)/e_mag)
 
         else:
-            r_point = np.linalg.norm(points)
+            r_point = np.linalg.norm(self.r0)
             true_anamoly = np.arccos((p/r_point-1)/e_mag)
 
         true_long_periapse_point = true_anamoly+true_long_periapse
         x_point = r_point*np.cos(true_long_periapse_point)
         y_point = r_point*np.sin(true_long_periapse_point)
-        ax.scatter(x_point, y_point, 'ro')
+        ax.plot(x_point, y_point, 'ro')
 
         for i, txt in enumerate(dt):
-            ax.annotate(round(txt,2), (x_point[i], y_point[i]))
+            ax.annotate(str(np.round(txt,2)), (x_point[i], y_point[i]))
 
         ax.axis('equal')
         plt.show()
