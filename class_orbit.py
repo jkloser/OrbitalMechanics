@@ -237,7 +237,7 @@ class orbit:
         y_cb = self.cb['radius']*np.sin(theta)
 
         fig,ax = plt.subplots()
-        ax.fill(x_cb, y_cb, "b")
+        ax.fill(x_cb, y_cb, 'b', alpha=0.5)
 
         # Check if the true longitude of periapse (Pi) exists, if not, set to 0.
         # Indicates circular orbit
@@ -245,8 +245,9 @@ class orbit:
             true_long_periapse = 0
 
         if e_mag > 1:
-            # limit radius from going to infinity for hyperbolic orbit
+            # limit radius from going to infinity for hyperbolic orbit and reorder to prevent connecting two sides
             theta = theta[(e_mag*np.cos(theta)) >= -1]
+            theta = np.concatenate((theta[theta>np.pi], theta[theta<np.pi])) # angles for continuous plot from bottom to top of hyperbola
 
         # Calculate the radii and the corresponding angles. Convert from polar to cartesian
         # True longitude at epoch accounts for location of periapsis wrt x-axis
@@ -254,18 +255,18 @@ class orbit:
         true_long_epoch = theta+true_long_periapse
         x_orbit = r_orbit*np.cos(true_long_epoch)
         y_orbit = r_orbit*np.sin(true_long_epoch)
-        ax.plot(x_orbit, y_orbit)
+        ax.plot(x_orbit, y_orbit, color='xkcd:lightish blue')
 
         # Add x- & y-axis arrows, eccentricity vector, annotations, axes units
-        ax.arrow(0,0,0.5*abs(r_orbit[0]),0, head_width=0.03, head_length=0.03, fc='k', ec='k')
-        ax.arrow(0,0,0,0.5*abs(r_orbit[0]), head_width=0.03, head_length=0.03, fc='k', ec='k')
+        ax.arrow(0,0,0.5*abs(r_orbit[0]),0, head_width=0.1, head_length=0.1, fc='k', ec='k')
+        ax.arrow(0,0,0,0.5*abs(r_orbit[0]), head_width=0.1, head_length=0.1, fc='k', ec='k')
         ax.annotate('x', xy=(0.55*abs(r_orbit[0]), 0), xycoords='data')
         ax.annotate('y', xy=(0, 0.55*abs(r_orbit[0])), xycoords='data')
-        ax.arrow(0,0,x_orbit[0],y_orbit[0], head_width = 0.02, head_length=0.02, fc='k', ec='k')
-        ax.annotate('e', xy=(1.05*x_orbit[0],1.05*y_orbit[0]), xycoords='data')
+
+        e_indx = np.where(r_orbit==min(r_orbit))
+        ax.arrow(0,0,x_orbit[e_indx[0][0]],y_orbit[e_indx[0][0]], head_width = 0.02, head_length=0.02, fc='k', ec='k')
+        ax.annotate('e', xy=(1.05*x_orbit[e_indx[0][0]],1.05*y_orbit[e_indx[0][0]]), xycoords='data')
         ax.set(xlabel=self.cb['units'], ylabel=self.cb['units'])
-
-
 
         if points.size > 1:
             points = np.vstack((self.r0, points))
@@ -280,7 +281,7 @@ class orbit:
         true_long_periapse_point = true_anamoly+true_long_periapse
         x_point = r_point*np.cos(true_long_periapse_point)
         y_point = r_point*np.sin(true_long_periapse_point)
-        ax.plot(x_point, y_point, 'ro')
+        ax.plot(x_point, y_point, 'ro', alpha=0.7)
 
         for i, txt in enumerate(dt):
             ax.annotate(str(np.round(txt,2)), (x_point[i], y_point[i]))
