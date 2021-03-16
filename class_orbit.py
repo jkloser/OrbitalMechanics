@@ -8,6 +8,7 @@ Project 1
 import numpy as np
 import central_bodies
 import matplotlib.pyplot as plt
+import warnings
 #from scipy.integrate import ode
 #from mpl_toolkits.mplot3d import Axes3D
 
@@ -132,7 +133,7 @@ class orbit:
         if alpha > 0: # ellipse
             chi = np.sqrt(self.cb['mu']) * dt * alpha
         else: # hyperbola
-            chi = np.sign(dt) * np.sqrt(-a) * np.log(-2*self.cb['mu']*alpha*dt / (np.dot(self.r0, self.v0)+np.sign(dt)*np.sqrt(self.cb['mu']*a)*(1-r0_mag/a)))
+            chi = np.sign(dt) * np.sqrt(-a) * np.log(-2*self.cb['mu']*alpha*dt / (np.dot(self.r0, self.v0)+np.sign(dt)*np.sqrt(-self.cb['mu']*a)*(1-r0_mag/a)))
 
         # Iterating until the change in universal variable is less than tolerance
         iter = 1
@@ -267,16 +268,17 @@ class orbit:
         ax.arrow(0,0,x_orbit[e_indx[0][0]],y_orbit[e_indx[0][0]], head_width = 0.02, head_length=0.02, fc='k', ec='k')
         ax.annotate('e', xy=(1.05*x_orbit[e_indx[0][0]],1.05*y_orbit[e_indx[0][0]]), xycoords='data')
         ax.set(xlabel=self.cb['units'], ylabel=self.cb['units'])
-
+        
         if points.size > 1:
             points = np.vstack((self.r0, points))
             dt = np.vstack((0.00, dt))
             r_point = np.linalg.norm(points, axis=1)
             true_anamoly = np.arccos((p/r_point-1)/e_mag)
+            true_anamoly[0] = 0.0
 
         else:
             r_point = np.linalg.norm(self.r0)
-            true_anamoly = np.arccos((p/r_point-1)/e_mag)
+            true_anamoly = 0.0
 
         true_long_periapse_point = true_anamoly+true_long_periapse
         x_point = r_point*np.cos(true_long_periapse_point)
