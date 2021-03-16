@@ -237,7 +237,7 @@ class orbit:
         y_cb = self.cb['radius']*np.sin(theta)
 
         fig,ax = plt.subplots()
-        ax.fill(x_cb, y_cb, 'b', alpha=0.5)
+        ax.fill(x_cb, y_cb, "b", alpha=0.5)
 
         # Check if the true longitude of periapse (Pi) exists, if not, set to 0.
         # Indicates circular orbit
