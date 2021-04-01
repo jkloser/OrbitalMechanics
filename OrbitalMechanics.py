@@ -20,7 +20,7 @@ vz = float(input('Enter vz value: ').replace('\U00002013', '-'))
 r0 = np.array([rx, ry, rz])
 v0 = np.array([vx, vy, vz])
 
-# cb_choose = input('Choose earth_DU, earth_metric, sun_AU, sun_metric: ')
+cb_choose = input('Choose earth_DU, earth_metric, sun_AU, sun_metric: ')
 cb_list = {'earth_DU':cb.earth_DU, 'earth_metric':cb.earth_metric, 'sun_AU':cb.sun_AU, 'sun_metric':cb.sun_metric}
 
 

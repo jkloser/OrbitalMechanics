@@ -301,6 +301,7 @@ def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0, d2r = False):
 
     # Transforms vehicle centered
     lst = GMST+lambdaE
+    print(lst)
     rx = r*np.cos(delta)*np.cos(lst)
     ry = r*np.cos(delta)*np.sin(lst)
     rz = r*np.sin(delta)
@@ -314,5 +315,50 @@ def vehicle2rv(r, v, phi, Az, delta, GMST, lambdaE = 0, d2r = False):
     vz = -v_S*np.cos(delta) + v_R*np.sin(delta)
     
     return np.array([rx, ry, rz]), np.array([vx, vy, vz])
+
+def gauss_problem(r1, r2, dt, DM, cb, tol = 5):
+    r1_mag = np.linalg.norm(r1)
+    r2_mag = np.linalg.norm(r2)
+    delta_nu = np.dot(r1, r2) / (r1_mag*r2_mag)
+
+    #A = np.sqrt(r1_mag*r2_mag)*np.sin(delta_nu) / np.sqrt(1-cos(delta_nu))
+
+    DM = np.sign(np.pi-delta_nu)
+    if DM>0: delta_nu = 2*np.pi - delta_nu
+    A = DM*np.sqrt(r0_mag*r2_mag*(1+np.cos(delta_nu)))
+
+    z = 0
+    c = 1/2
+    s = 1/6
+    dt_iter = 0
+
+    while round(dt-dt_iter, tol) != 0:
+        y = r1_mag + r2_mag - A*(1-z*s)/np.sqrt(c)
+        x = np.sqrt(y/c)
+        dt_iter = (x**3*s + A*np.sqrt(y))/np.sqrt(cb['mu'])
+
+        s_prime = 1/(2*z)*(c-3*s)
+        c_prime = 1/(2*z)*(1-z*s-2*c)
+        #if round(z, 3)==0:
+        #    s_prime = 1/24
+        #    c_prime = 1/120
+        dtdz = (x**3 * (s_prime-(3*s*c_prime)/(2*c)) + A/8*(3*s*np.sqrt(y)/c + A/x)) / np.sqrt(cb['mu'])
+        z = z + (dt-dt_iter)/dtdz
+
+        c = 1/2 - z/np.math.factorial(4) + z**2/np.math.factorial(6) - x**3/np.math.factorial(8)
+        s = 1/6 - z/np.math.factorial(5) + z**2/np.math.factorial(7) - x**3/np.math.factorial(9)
+
+    f = 1-(y/r1_mag)
+    g = A*np.sqrt(y/cb['mu'])
+    gdot = 1-(y/r2_mag)
+
+    v1 = (r2 - f*r1)/g
+    v2 = (gdot*r2-r1)/g
+
+    satellite = orbit(r1, v1, cb)
+    satellite.rv2elem()
+
+    return satellite, v2
+
 
 

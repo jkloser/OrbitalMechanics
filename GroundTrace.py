@@ -16,5 +16,5 @@ r, v = vehicle2rv(r, v, phi, Az, delta, gmst, lambdaE, True)
 print(r)
 print(v)
 
-satellite = orbit(r, v, cb.earth_imperial)
-satellite.rv2elem()
+# satellite = orbit(r, v, cb.earth_imperial)
+# satellite.rv2elem()
