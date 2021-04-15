@@ -323,10 +323,11 @@ def gauss_problem(r1, r2, dt, DM, cb, tol = 5):
     r2_mag = np.linalg.norm(r2)
     delta_nu = np.arccos(np.dot(r1, r2) / (r1_mag*r2_mag))
 
-    #A = np.sqrt(r1_mag*r2_mag)*np.sin(delta_nu) / np.sqrt(1-cos(delta_nu))
+    # Direction check for angle
     if DM<0: delta_nu = 2.0*np.pi - delta_nu
     A = DM*np.sqrt(r1_mag*r2_mag*(1.0+np.cos(delta_nu)))
 
+    # Initial variable guess
     z = 0.0
     c = 1/2.0
     s = 1/6.0
@@ -335,14 +336,12 @@ def gauss_problem(r1, r2, dt, DM, cb, tol = 5):
     s_prime = 1/120.0
     iter = 1
 
+    # Iterates until the difference in time of travel is within specified tolerance
     while round(dt-dt_iter, tol) != 0.0:
         y = r1_mag + r2_mag - A*(1.0-z*s)/np.sqrt(c)
         x = np.sqrt(y/c)
         dt_iter = (x**3.0*s + A*np.sqrt(y))/np.sqrt(cb['mu'])
 
-        #if round(z, 3)==0:
-        #    s_prime = 1/24
-        #    c_prime = 1/120
         dtdz = ((x**3.0) * (s_prime-(3.0*s*c_prime)/(2.0*c)) + A/8.0*(3.0*s*np.sqrt(y)/c + A/x)) / np.sqrt(cb['mu'])
         z = z + (dt-dt_iter)/dtdz
 
@@ -355,9 +354,6 @@ def gauss_problem(r1, r2, dt, DM, cb, tol = 5):
         s_prime = 1.0/(2.0*z)*(c-3.0*s)
         c_prime = 1.0/(2.0*z)*(1.0-z*s-2.0*c)
         iter+=1
-
-        #c = 1/2 - z/np.math.factorial(4) + z**2/np.math.factorial(6) - x**3/np.math.factorial(8)
-        #s = 1/6 - z/np.math.factorial(5) + z**2/np.math.factorial(7) - x**3/np.math.factorial(9)
 
     f = 1.0-(y/r1_mag)
     g = A*np.sqrt(y/cb['mu'])

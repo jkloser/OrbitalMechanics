@@ -21,7 +21,7 @@ r2z = float(input('Enter r2z value: ').replace('\U00002013', '-'))
 r1 = np.array([0.5, 0.6, 0.7])
 r2 = np.array([0.0, 1.0, 0.0])
 dt = 0.9667663
-direction = 1
+direction = -1
 """
 dt = float(input('Enter time step: '))
 direction = float(input('Enter 1 for short, -1 for long direction: ').replace('\U00002013', '-'))
@@ -29,6 +29,6 @@ direction = float(input('Enter 1 for short, -1 for long direction: ').replace('\
 cb_choose = input('Choose earth_DU, earth_metric, sun_AU, sun_metric: ')
 cb_list = {'earth_DU':cb.earth_DU, 'earth_metric':cb.earth_metric, 'sun_AU':cb.sun_AU, 'sun_metric':cb.sun_metric}
 
-[v1, v2] = gauss_problem(r1, r2, dt, direction, cb.earth_DU)
+[v1, v2] = gauss_problem(r1, r2, dt, direction, cb_list[cb_choose])
 print('v1 = ' + str(v1))
 print('v2 = ' + str(v2))
