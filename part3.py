@@ -23,6 +23,9 @@ r2 = np.array([0.0, 1.0, 0.0])
 dt = 0.9667663
 direction = -1
 """
+
+r1 = np.array([r1x, r1y, r1z])
+r2 = np.array([r2x, r2y, r2z])
 dt = float(input('Enter time step: '))
 direction = float(input('Enter 1 for short, -1 for long direction: ').replace('\U00002013', '-'))
 

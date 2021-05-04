@@ -8,7 +8,6 @@ Project 1
 import numpy as np
 import central_bodies
 import matplotlib.pyplot as plt
-import warnings
 #from scipy.integrate import ode
 #from mpl_toolkits.mplot3d import Axes3D
 
@@ -365,5 +364,8 @@ def gauss_problem(r1, r2, dt, DM, cb, tol = 5):
     satellite = orbit(r1, v1, cb)
     #satellite.rv2elem()
     print('Iterations: ' + str(iter))
+    print(f)
+    print(g)
+    print(gdot)
 
     return v1, v2
