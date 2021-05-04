@@ -40,8 +40,6 @@ JD_arr = 367.*year - np.fix(7.*(year+np.floor((month+9.)/12.))/4.) + np.fix(275.
 
 TOF = JD_arr - JD_dep
 
-TOF = JD_arr - JD_dep
-
 T_dep = (JD_dep - 2451545.0)/36525.0
 T_arr = (JD_arr - 2451545.0)/36525.0
 
@@ -62,11 +60,11 @@ lambda_M_arr = 181.979801 + 58517.815676*T_arr + 0.00000165*T_arr**2 - 0.0000000
 lambda_M_dep %= 360
 lambda_M_arr %= 360
 
-lambda_M_dep *= np.pi/180
-lambda_M_arr *= np.pi/180
-
 M_earth = lambda_M_dep - omega_dep
 M_venus = lambda_M_arr - omega_arr
+
+M_earth *= np.pi/180
+M_venus *= np.pi/180
 
 E_earth = M_earth
 iter = 1

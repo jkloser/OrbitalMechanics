@@ -4,13 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>8a50f404-efeb-4427-9f88-c645712cccf2</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>OrbitalMechanics.py</StartupFile>
+    <StartupFile>final_project.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>OrbitalMechanics</Name>
     <RootNamespace>OrbitalMechanics</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
