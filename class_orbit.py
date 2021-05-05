@@ -337,6 +337,7 @@ def gauss_problem(r1, r2, dt, DM, cb, tol = 5):
 
     # Iterates until the difference in time of travel is within specified tolerance
     while round(dt-dt_iter, tol) != 0.0:
+        print(iter)
         y = r1_mag + r2_mag - A*(1.0-z*s)/np.sqrt(c)
         x = np.sqrt(y/c)
         dt_iter = (x**3.0*s + A*np.sqrt(y))/np.sqrt(cb['mu'])
@@ -368,4 +369,4 @@ def gauss_problem(r1, r2, dt, DM, cb, tol = 5):
     print(g)
     print(gdot)
 
-    return v1, v2
+    return satellite, v1, v2
